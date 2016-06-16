@@ -1,0 +1,10 @@
+{
+  "Ephesians": {
+    "Text": "Ephesians.json",
+    "Lex": "lexicon-eph-english.json"
+  },
+  "Galatians": {
+    "Text": "Galatians.json",
+    "Lex": "asd.json"
+  }
+}
