@@ -21,7 +21,6 @@ var book;
 var bookLookup = {};
 var lexicon = {};
 getBookList();
-//getScripture('Ephesians.json');
 
 //Handles mutable chapter bar up top
 $(window).scroll(function () {
@@ -55,16 +54,15 @@ $("#previousChapter").click(function(){
 		chapterNumber = numOfChapters;
 		displayScripture(book, chapterNumber);
 	}
-})
+});
 
 //Goes foward a chapter when clicked
 $("#goToChapter").click(function(){
 	var desiredChapter = parseInt($("#chapterBox").val());
-	if(desiredChapter <= 6 && desiredChapter >= 1){
+	if(desiredChapter <= numOfChapters && desiredChapter >= 1){
 		chapterNumber = desiredChapter
 		displayScripture(book, chapterNumber);
 	}
-	console.log(chapterNumber);
 });
 
 $("#bookSelect").change(function(ev) {
@@ -100,7 +98,7 @@ $("#scripture").mouseup(function(ev) {
 		//Formatting the text in our tooltip to be displayed
 		$(ev.target).opentip("<b>" + word + "</b>" + " - "
 			+ shortDef
-			+ "<br></br><i>(" + morph + ")</i>" ,
+			+ "<br></br><a href='http://studybible.info/mac/" + morph + "'><i>(" + morph + ")</i></a>" ,
 			{style: "word"});
 	}
 });
@@ -138,70 +136,7 @@ $("#searchForm").submit(function(ev){
 	displayScripture(book, searchData.startChap, searchData.startVerse, searchData.endChap, searchData.endVerse);
 });
 
-//AJAX CALLS FOR BOOK AND LEXICON
-//First call gets and parses our JSON as well as adds metadata
-function getScripture(url){
-// 	$.ajax({
-// 	url: url,
-// 	dataType: 'json',
-// 	type: 'get',
-// 	cache: false,
-// 	success: function(data){
-//
-// 		This regex finds our strong numbers
-// 		var reg = /[^A-Za-z0-9 -]+ G[0-9]{2,6}/g;
-// 		var result = [];
-//
-// 		//Iteration goes through chapters then verses
-// 		$.each(dat, function(chap, verses) {
-// 	      $.each(verses, function(verse, text) {
-//
-// 	      	//We remove all the text in {} and remove the []
-// 	      	text = text.replace(/{.*}|[\[\]]/g, "");
-//
-// 	      	//Placing the verse number in our span so that we can add it to the users clip board later
-// 	      	var newVerse = "<span verse='" + verse + "'>";
-//
-// 	      	//Adds the strong number to a strong container on the span and adds places the word in the wrapper
-// 	      	while(result = reg.exec(text)){
-// 	      		var a = result[0].split(" ");
-// 	      		newVerse += "<span strong ='" + a[1].substring(1) + "'>" + a[0] + " </span>";
-// 	      	}
-//
-// 	      	//Closing our span tag for the verse
-// 	      	newVerse += "</span>"
-// 	        data.Ephesians[chap][verse] = newVerse;
-// 	      });
-// 	    });
-//
-// 		//Update the view with data we got from our AJAX call
-// 		book = data;
-// 		numOfChapters = Object.keys(book.Ephesians).length;
-// 		displayScripture(data, chapterNumber);
-// 	},
-// 	error: function(err) {
-// 		alert("Could not get Epheisans JSON data");
-// 	}
-// });
-
-//This call gets and structures the lexicon
-// $.ajax({
-// 	url: 'lexicon-eph-english.json',
-// 	dataType: 'json',
-// 	type: 'get',
-// 	cache: false,
-//
-// 	//Here we read in our lexicon and place it into a new structure
-// 	//TODO: EVAN could you maybe explain this better?
-// 	success: function(data) {
-//
-// 	},
-// 	error: function(err) {
-// 		alert("Could not get lexicon!");
-// 	}
-// });
-}
-
+// Switched the book we are currently reading, automatically displays first chapter
 function switchBook(bookName) {
 	var newBook = bookList[bookName];
 	// double ajax call!
@@ -246,7 +181,7 @@ function switchBook(bookName) {
 			}
 			$("#bookTitle").text(bookName + " in Greek");
 			displayScripture(book, 1, 1, 1, 1);
-	}, function(err) {
+	}, function(err) { // if either json file doesn't exist
 		console.log("Could not get book data for " + bookName);
 	});
 }
