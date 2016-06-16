@@ -33,7 +33,7 @@ h3{
 #scripture{
 	padding: 20px;
 	margin: 1px 10px;
-	background-color: #D6D6D5;
+	background-color: #D6D6D6;
 }
 
 #scripture span {
@@ -72,11 +72,4 @@ nav input:focus {
 .verseNum {
 	font-size: 75%;
 	font-style: italic;
-}
-
-.chapter-fixed {
-    top: 0;
-    z-index: 100;
-	position: fixed;
-    width: 100%;
 }
