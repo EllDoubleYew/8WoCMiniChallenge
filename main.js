@@ -21,6 +21,7 @@ var book;
 var bookLookup = {};
 var lexicon = {};
 getBookList();
+//getScripture('Ephesians.json');
 
 //Handles mutable chapter bar up top
 $(window).scroll(function () {
@@ -43,6 +44,7 @@ $("#nextChapter").click(function(){
 		chapterNumber = 1;
 		displayScripture(book, chapterNumber);
 	}
+	localStorage.setItem("lastSpot", chapterNumber);
 });
 
 //Goes back a chapter when clicked
@@ -54,15 +56,17 @@ $("#previousChapter").click(function(){
 		chapterNumber = numOfChapters;
 		displayScripture(book, chapterNumber);
 	}
-});
+	localStorage.setItem("lastSpot", chapterNumber);
+})
 
 //Goes foward a chapter when clicked
 $("#goToChapter").click(function(){
 	var desiredChapter = parseInt($("#chapterBox").val());
-	if(desiredChapter <= numOfChapters && desiredChapter >= 1){
+	if(desiredChapter <= 6 && desiredChapter >= 1){
 		chapterNumber = desiredChapter
 		displayScripture(book, chapterNumber);
 	}
+	console.log(chapterNumber);
 });
 
 $("#bookSelect").change(function(ev) {
@@ -118,6 +122,7 @@ $("#searchForm").submit(function(ev){
 	ev.preventDefault();
 	var searchText = $("#chapterBox").val();
 	if (searchText == "") return;
+	localStorage.setItem("lastSpot", searchText);
 	var searchData = {};
 	// parse the search input into searchData
 	if (searchText.search("-") != -1) { // range
@@ -134,15 +139,16 @@ $("#searchForm").submit(function(ev){
 		searchData.startChap = target[0];
 		if (target.length > 1) searchData.startVerse = target[1];
 	}
-	console.log(searchData);
 	displayScripture(book, searchData.startChap, searchData.startVerse, searchData.endChap, searchData.endVerse);
 });
 
-// Switched the book we are currently reading, automatically displays first chapter
+//AJAX CALLS FOR BOOK AND LEXICON
+//First call gets and parses our JSON as well as adds metadata
+
 function switchBook(bookName) {
 	var newBook = bookList[bookName];
 	// double ajax call!
-	$.when($.getJSON('data/' + newBook.Text), $.getJSON('data/' + newBook.Lex)).then(function(bookData, lexData) {
+	return $.when($.getJSON('data/' + newBook.Text), $.getJSON('data/' + newBook.Lex)).then(function(bookData, lexData) {
 		// update book data
 		var reg = /[^A-Za-z0-9 -]+ G[0-9]{2,6}/g;
 		var result = [];
@@ -182,6 +188,7 @@ function switchBook(bookName) {
 				lexicon[lexData[0][i].strongs] = lexData[0][i];
 			}
 			$("#bookTitle").text(bookName + " in Greek");
+
 			displayScripture(book, 1, 1, 1, 1);
 
 	}, function(err) { // if either json file doesn't exist
@@ -203,7 +210,10 @@ function getBookList() {
 				}
 				if (options != "") {
 					$("#bookSelect").html(options);
-					switchBook($("#bookSelect option")[0].innerHTML);
+					switchBook($("#bookSelect option")[0].innerHTML).then(function() {
+						$("#chapterBox").val(localStorage.getItem("lastSpot"));
+						$("#searchForm").trigger("submit")
+					});
 				}
 				else {
 					console.log("Error: Could not load books");

@@ -11,12 +11,15 @@
 	<body>
 	<h1 id="bookTitle">Bible Books in Greek</h1>
 	<h3 id="chapter">Chapter 1</h3>
-	<select id="bookSelect"></select>
+
+
 
 	<nav id="search">
 	<form id="searchForm">
+		<select id="bookSelect" ></select>
+    <input type="submit" id="goToChapter" value="Go"></input>
 		<input type="text" id="chapterBox" placeholder="2, 3:5, 2:5-3:9, etc." pattern="^[1-9]+(?::[1-9]+)?(-[1-9]+(?::[1-9]+)?)?$" /></input>
-		<input type="submit" id="goToChapter" value="Go"></input>
+
 	</form>
 	</nav>
 
