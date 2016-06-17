@@ -1,5 +1,20 @@
-$(document).ready(function() {
 
+$(document).ready(function() {
+	var fs = require("fs");
+	fs.readFile('data/books.json', 'utf-8', function(err, data) {
+		bookList = JSON.parse(data);
+		var options = "";
+		for (book in bookList) {
+			options += "<option value='" + book + "'>" + book + "</option>";
+		}
+		if (options != "") {
+			$("#bookSelect").html(options);
+			switchBook($("#bookSelect option")[0].innerHTML);
+		}
+		else {
+			console.log("Error: Could not load books");
+		}
+	});
 //Defining styles for our Opentips
 Opentip.styles.word = {
 	delay:0,
@@ -20,7 +35,7 @@ var curBook;
 var book;
 var bookLookup = {};
 var lexicon = {};
-getBookList();
+//getBookList();
 
 //Handles mutable chapter bar up top
 $(window).scroll(function () {
@@ -74,29 +89,31 @@ $("#bookSelect").change(function(ev) {
 // Checks for new selection whenever the mouse is released
 $("#scripture").mouseup(function(ev) {
 	var selection = window.getSelection().toString();
+	console.log(window.getSelection());
 	// return if no selection made
 	if (selection == "") return;
 	// regex to test for multiple words
 	var reg = /.+ .+/g;
 	// multi word selection
 	if (reg.test(selection) == true) {
-		//we have yet to handle this!
+		// TODO: Do we need to do anything else here?
 	}
 	else { // single word selection
-		if ($(ev.target).data('opentips') != undefined) return;
+		var target = $(ev.target);
+		if (target.data('opentips') != undefined || target.hasClass('verseNum') || target.hasClass('chapNum')) return;
 		var word = selection.replace(/ /g, "");
-		var strong = $(ev.target).attr('strong');
+		var strong = target.attr('strong');
 		var lex = lexicon[strong];
 		//If the definition is not in our lexicon
 		if (lex == undefined) {
-			$(ev.target).opentip('definition unavailable', {style: "word"});
+			target.opentip('definition unavailable', {style: "word"});
 			return;
 		}
 		//If the definition is in our lexicon
 		var shortDef = lex.brief;
 		var morph = lex.morphology;
 		//Formatting the text in our tooltip to be displayed
-		$(ev.target).opentip("<b>" + word + "</b>" + " - "
+		target.opentip("<b>" + word + "</b>" + " - "
 			+ shortDef
 			+ "<br></br><a href='http://studybible.info/mac/" + morph + "'><i>(" + morph + ")</i></a>" ,
 			{style: "word"});
@@ -140,49 +157,52 @@ $("#searchForm").submit(function(ev){
 function switchBook(bookName) {
 	var newBook = bookList[bookName];
 	// double ajax call!
-	$.when($.getJSON('data/' + newBook.Text), $.getJSON('data/' + newBook.Lex)).then(function(bookData, lexData) {
-		// update book data
-		var reg = /[^A-Za-z0-9 -]+ G[0-9]{2,6}/g;
-		var result = [];
-		// yeah im not proud of this but fingers crossed it works
-		var dat = bookData[0];
-		dat = dat[function() { for (var a in dat) {return a;}}()];
-		//Iteration goes through chapters then verses
-		$.each(dat, function(chap, verses) {
-				$.each(verses, function(verse, text) {
 
-					//We remove all the text in {} and remove the []
-					text = text.replace(/{.*}|[\[\]]/g, "");
+	fs.readFile('data\\' + newBook.Text, 'utf-8', function(bookErr, bookData) {
+		if (bookErr) console.log("Error: Could not load " + newBook.Text);
+		fs.readFile('data\\' + newBook.Lex, 'utf-8', function(lexErr, lexData) {
+			if (lexErr) console.log("Error: Could not load " + newBook.Lex);
+			var reg = /[^A-Za-z0-9 -]+ G[0-9]{2,6}/g;
+			var result = [];
+			var dat = JSON.parse(bookData);
+			// yeah im not proud of this but fingers crossed it works
+			dat = dat[function() { for (var a in dat) {return a;}}()];
+			//Iteration goes through chapters then verses
+			$.each(dat, function(chap, verses) {
+					$.each(verses, function(verse, text) {
 
-					//Placing the verse number in our span so that we can add it to the users clip board later
-					var newVerse = "<span verse='" + verse + "'>";
+						//We remove all the text in {} and remove the []
+						text = text.replace(/{.*}|[\[\]]/g, "");
 
-					//Adds the strong number to a strong container on the span and adds places the word in the wrapper
-					while(result = reg.exec(text)){
-						var a = result[0].split(" ");
-						newVerse += "<span strong ='" + a[1].substring(1) + "'>" + a[0] + " </span>";
-					}
+						//Placing the verse number in our span so that we can add it to the users clip board later
+						var newVerse = "<span verse='" + verse + "'>";
 
-					//Closing our span tag for the verse
-					newVerse += "</span>"
-					dat[chap][verse] = newVerse;
+						//Adds the strong number to a strong container on the span and adds places the word in the wrapper
+						while(result = reg.exec(text)){
+							var a = result[0].split(" ");
+							newVerse += "<span strong ='" + a[1].substring(1) + "'>" + a[0] + " </span>";
+						}
 
+						//Closing our span tag for the verse
+						newVerse += "</span>"
+						dat[chap][verse] = newVerse;
+
+					});
 				});
-			});
-			// wipe book and replace it
-		book = {};
-		book = dat;
-		curBook = bookName;
-		numOfChapters = Object.keys(dat).length;
-		// update lexicon
-		lexicon = {};
-			for (var i = 0; i < lexData[0].length; i++) {
-				lexicon[lexData[0][i].strongs] = lexData[0][i];
-			}
-			$("#bookTitle").text(bookName + " in Greek");
-			displayScripture(book, 1, 1, 1, 1);
-	}, function(err) { // if either json file doesn't exist
-		console.log("Could not get book data for " + bookName);
+				// wipe book and replace it
+			book = {};
+			book = dat;
+			curBook = bookName;
+			numOfChapters = Object.keys(dat).length;
+			// update lexicon
+			lexicon = {};
+			lexData = JSON.parse(lexData);
+				for (var i = 0; i < lexData[0].length; i++) {
+					lexicon[lexData[0][i].strongs] = lexData[0][i];
+				}
+				$("#bookTitle").text(bookName + " in Greek");
+				displayScripture(book, 1, 1, 1, 1);
+		});
 	});
 }
 

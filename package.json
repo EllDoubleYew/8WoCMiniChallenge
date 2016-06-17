@@ -1,0 +1,20 @@
+{
+  "name": "Greek",
+  "version": "1.0.0",
+  "description": "Greek Bible Viewer",
+  "main": "index.html",
+  "author": "Luke, Manny, and Evan",
+  "window": {
+    "toolbar": false,
+    "width": 800,
+    "height": 500,
+    "title": "The Dankest of Gospels",
+    "icon": "core.png",
+    "min_width": 200,
+    "min_height": 400
+  },
+  "license": "ISC",
+  "dependencies": {
+
+  }
+}
