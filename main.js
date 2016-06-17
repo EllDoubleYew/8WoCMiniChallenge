@@ -44,6 +44,7 @@ $("#nextChapter").click(function(){
 		chapterNumber = 1;
 		displayScripture(book, chapterNumber);
 	}
+	localStorage.setItem("lastSpot", chapterNumber);
 });
 
 //Goes back a chapter when clicked
@@ -55,6 +56,7 @@ $("#previousChapter").click(function(){
 		chapterNumber = numOfChapters;
 		displayScripture(book, chapterNumber);
 	}
+	localStorage.setItem("lastSpot", chapterNumber);
 })
 
 //Goes foward a chapter when clicked
@@ -118,6 +120,7 @@ $("#searchForm").submit(function(ev){
 	ev.preventDefault();
 	var searchText = $("#chapterBox").val();
 	if (searchText == "") return;
+	localStorage.setItem("lastSpot", searchText);
 	var searchData = {};
 	// parse the search input into searchData
 	if (searchText.search("-") != -1) { // range
@@ -134,78 +137,16 @@ $("#searchForm").submit(function(ev){
 		searchData.startChap = target[0];
 		if (target.length > 1) searchData.startVerse = target[1];
 	}
-	console.log(searchData);
 	displayScripture(book, searchData.startChap, searchData.startVerse, searchData.endChap, searchData.endVerse);
 });
 
 //AJAX CALLS FOR BOOK AND LEXICON
 //First call gets and parses our JSON as well as adds metadata
-function getScripture(url){
-// 	$.ajax({
-// 	url: url,
-// 	dataType: 'json',
-// 	type: 'get',
-// 	cache: false,
-// 	success: function(data){
-//
-// 		This regex finds our strong numbers
-// 		var reg = /[^A-Za-z0-9 -]+ G[0-9]{2,6}/g;
-// 		var result = [];
-//
-// 		//Iteration goes through chapters then verses
-// 		$.each(dat, function(chap, verses) {
-// 	      $.each(verses, function(verse, text) {
-//
-// 	      	//We remove all the text in {} and remove the []
-// 	      	text = text.replace(/{.*}|[\[\]]/g, "");
-//
-// 	      	//Placing the verse number in our span so that we can add it to the users clip board later
-// 	      	var newVerse = "<span verse='" + verse + "'>";
-//
-// 	      	//Adds the strong number to a strong container on the span and adds places the word in the wrapper
-// 	      	while(result = reg.exec(text)){
-// 	      		var a = result[0].split(" ");
-// 	      		newVerse += "<span strong ='" + a[1].substring(1) + "'>" + a[0] + " </span>";
-// 	      	}
-//
-// 	      	//Closing our span tag for the verse
-// 	      	newVerse += "</span>"
-// 	        data.Ephesians[chap][verse] = newVerse;
-// 	      });
-// 	    });
-//
-// 		//Update the view with data we got from our AJAX call
-// 		book = data;
-// 		numOfChapters = Object.keys(book.Ephesians).length;
-// 		displayScripture(data, chapterNumber);
-// 	},
-// 	error: function(err) {
-// 		alert("Could not get Epheisans JSON data");
-// 	}
-// });
-
-//This call gets and structures the lexicon
-// $.ajax({
-// 	url: 'lexicon-eph-english.json',
-// 	dataType: 'json',
-// 	type: 'get',
-// 	cache: false,
-//
-// 	//Here we read in our lexicon and place it into a new structure
-// 	//TODO: EVAN could you maybe explain this better?
-// 	success: function(data) {
-//
-// 	},
-// 	error: function(err) {
-// 		alert("Could not get lexicon!");
-// 	}
-// });
-}
 
 function switchBook(bookName) {
 	var newBook = bookList[bookName];
 	// double ajax call!
-	$.when($.getJSON('data/' + newBook.Text), $.getJSON('data/' + newBook.Lex)).then(function(bookData, lexData) {
+	return $.when($.getJSON('data/' + newBook.Text), $.getJSON('data/' + newBook.Lex)).then(function(bookData, lexData) {
 		// update book data
 		var reg = /[^A-Za-z0-9 -]+ G[0-9]{2,6}/g;
 		var result = [];
@@ -245,7 +186,9 @@ function switchBook(bookName) {
 				lexicon[lexData[0][i].strongs] = lexData[0][i];
 			}
 			$("#bookTitle").text(bookName + " in Greek");
+
 			displayScripture(book, 1, 1, 1, 1);
+
 	}, function(err) {
 		console.log("Could not get book data for " + bookName);
 	});
@@ -265,7 +208,10 @@ function getBookList() {
 				}
 				if (options != "") {
 					$("#bookSelect").html(options);
-					switchBook($("#bookSelect option")[0].innerHTML);
+					switchBook($("#bookSelect option")[0].innerHTML).then(function() {
+						$("#chapterBox").val(localStorage.getItem("lastSpot"));
+						$("#searchForm").trigger("submit");
+					});
 				}
 				else {
 					console.log("Error: Could not load books");
