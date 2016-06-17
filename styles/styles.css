@@ -78,3 +78,12 @@ nav input:focus {
 	position: fixed;
     width: 100%;
 }
+
+select{
+	background-color:#1abc9c;
+	border-color: #16a085;
+	margin: 1%;
+	color: #fff;
+	width: 40%;
+	text-align: center;
+}

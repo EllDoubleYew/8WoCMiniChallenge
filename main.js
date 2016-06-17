@@ -210,7 +210,7 @@ function getBookList() {
 					$("#bookSelect").html(options);
 					switchBook($("#bookSelect option")[0].innerHTML).then(function() {
 						$("#chapterBox").val(localStorage.getItem("lastSpot"));
-						$("#searchForm").trigger("submit");
+						$("#searchForm").trigger("submit")
 					});
 				}
 				else {
