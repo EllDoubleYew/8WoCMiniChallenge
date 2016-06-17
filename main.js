@@ -20,7 +20,7 @@ function displayScripture(data, startChap, startVerse, endChap, endVerse){
 		startVerse = temp;
 	}
 	for (var chap = startChap; chap <= endChap && chap <= numOfChapters; chap++) {
-		chapterString += '<span chapter="' + chap + '" verse="1" class="chapNum">' + chap + '</span> ';
+		chapterString += '<span chapter="' + chap + '" verse="1" class="chapNum">Chapter ' + chap + '</span> ';
 		for(verse in data[chap]){
 			chapterString += '<span verse="' + verse + '" class="verseNum">' + verse + '</span> ';
 			chapterString += data[chap][verse];
