@@ -6,49 +6,6 @@ var book;
 var bookLookup = {};
 var lexicon = {};
 
-function displayScripture(data, startChap, startVerse, endChap, endVerse){
-
-	var chapterString = "";
-	if (startChap > numOfChapters) return;
-	if (endChap == undefined) endChap = startChap;
-	if (endChap < startChap) { // swap if need b
-		var temp = endChap;
-		endChap = startChap;
-		startChap = temp;
-		temp = endVerse;
-		endVerse = startVerse;
-		startVerse = temp;
-	}
-	for (var chap = startChap; chap <= endChap && chap <= numOfChapters; chap++) {
-		chapterString += '<span chapter="' + chap + '" verse="1" class="chapNum">Chapter ' + chap + '</span> ';
-		for(verse in data[chap]){
-			chapterString += '<span verse="' + verse + '" class="verseNum">' + verse + '</span> ';
-			chapterString += data[chap][verse];
-		}
-	}
-
-	$("#chapter").html("Chapter " + startChap + (startChap == endChap ? "" : ("-" + (endChap > numOfChapters ? numOfChapters : endChap))));
-	$("#scripture").html(chapterString);
-}
-
-$(document).ready(function() {
-//Defining styles for our Opentips
-Opentip.styles.word = {
-	delay:0,
-	showOn: 'click',
-	tipJoint: 'bottom',
-	fixed: true,
-	hideTrigger: "closeButton",
-	closeButtonRadius: 10,
-	offset: [0, -10],
-	closeButtonCrossSize: 10,
-	closeButtonLinkOverscan: 12
-};
-getBookList();
-//getScripture('Ephesians.json');
-
-//Handles mutable chapter bar up top
-
 
 //AJAX CALLS FOR BOOK AND LEXICON
 //First call gets and parses our JSON as well as adds metadata
@@ -103,6 +60,49 @@ function switchBook(bookName) {
 		console.log("Could not get book data for " + bookName);
 	});
 }
+
+function displayScripture(data, startChap, startVerse, endChap, endVerse){
+
+	var chapterString = "";
+	if (startChap > numOfChapters) return;
+	if (endChap == undefined) endChap = startChap;
+	if (endChap < startChap) { // swap if need b
+		var temp = endChap;
+		endChap = startChap;
+		startChap = temp;
+		temp = endVerse;
+		endVerse = startVerse;
+		startVerse = temp;
+	}
+	for (var chap = startChap; chap <= endChap && chap <= numOfChapters; chap++) {
+		chapterString += '<span chapter="' + chap + '" verse="1" class="chapNum">Chapter ' + chap + '</span> ';
+		for(verse in data[chap]){
+			chapterString += '<span verse="' + verse + '" class="verseNum">' + verse + '</span> ';
+			chapterString += data[chap][verse];
+		}
+	}
+
+	$("#chapter").html("Chapter " + startChap + (startChap == endChap ? "" : ("-" + (endChap > numOfChapters ? numOfChapters : endChap))));
+	$("#scripture").html(chapterString);
+}
+
+$(document).ready(function() {
+//Defining styles for our Opentips
+Opentip.styles.word = {
+	delay:0,
+	showOn: 'click',
+	tipJoint: 'bottom',
+	fixed: true,
+	hideTrigger: "closeButton",
+	closeButtonRadius: 10,
+	offset: [0, -10],
+	closeButtonCrossSize: 10,
+	closeButtonLinkOverscan: 12
+};
+getBookList();
+//getScripture('Ephesians.json');
+
+//Handles mutable chapter bar up top
 
 function getBookList() {
 	$.ajax({
