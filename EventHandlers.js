@@ -89,7 +89,8 @@ $("#scripture").mouseup(function(ev) {
 $("#searchForm").submit(function(ev){
 	ev.preventDefault();
 	var searchText = $("#chapterBox").val();
-	if (searchText == "") return;
+	var matchReg = /^[1-9]+(?::[1-9]+)?(-[1-9]+(?::[1-9]+)?)?$/g;
+	if (searchText == "" || matchReg.test(searchText) == false) return;
 	localStorage.setItem("lastSpot", searchText);
 	var searchData = {};
 	// parse the search input into searchData
