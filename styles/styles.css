@@ -28,6 +28,10 @@ h3{
     font-size: 16px;
 }
 
+button:focus{
+	outline: 0;
+}
+
 #scripture{
 	padding: 20px;
 	margin: 0 2%;

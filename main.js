@@ -7,6 +7,7 @@ var bookLookup = {};
 var lexicon = {};
 
 function displayScripture(data, startChap, startVerse, endChap, endVerse){
+
 	var chapterString = "";
 	if (startChap > numOfChapters) return;
 	if (endChap == undefined) endChap = startChap;
@@ -132,36 +133,5 @@ function getBookList() {
 		}
 	});
 }
-
-//Displays scripture to the screen given data and a chapter
-
-function appendSelection(){
-	var selObj = window.getSelection();
-	var verseStart = $(selObj.anchorNode.parentElement.parentElement).attr('verse');
-	var verseEnd = $(selObj.focusNode.parentElement.parentElement).attr('verse');
-	if(verseStart == verseEnd){
-		var selectionInfo = "Chapter: " + chapterNumber + " Verse: " + verseStart;
-	}else if(parseInt(verseStart) > parseInt(verseEnd)){
-		var temp = verseStart;
-		verseStart = verseEnd;
-		verseEnd = temp;
-		var selectionInfo = "Chapter: " + chapterNumber + " Verses: " + verseStart + "-" + verseEnd;
-	}else{
-		var selectionInfo = "Chapter: " + chapterNumber + " Verses: " + verseStart + "-" + verseEnd;
-	}
-	var copytext = selObj.toString() + " (" + selectionInfo + ")";
-	console.log(copytext);
-	var newdiv = document.createElement('div');
-		newdiv.style.position = 'absolute';
-		newdiv.style.left = '-99999px';
-
-	document.body.appendChild(newdiv);
-	newdiv.innerHTML = copytext;
-	selObj.selectAllChildren(newdiv);
-
-	window.setTimeout(function(){document.body.removeChild(newdiv);}, 100);
-}
-
-document.addEventListener('copy', appendSelection);
 
 });
