@@ -74,31 +74,33 @@ $("#bookSelect").change(function(ev) {
 // Checks for new selection whenever the mouse is released
 $("#scripture").mouseup(function(ev) {
 	var selection = window.getSelection().toString();
+	console.log(window.getSelection());
 	// return if no selection made
 	if (selection == "") return;
 	// regex to test for multiple words
 	var reg = /.+ .+/g;
 	// multi word selection
 	if (reg.test(selection) == true) {
-		//we have yet to handle this!
+		// TODO: Do we need to do anything else here?
 	}
 	else { // single word selection
-		if ($(ev.target).data('opentips') != undefined) return;
+		var target = $(ev.target);
+		if (target.data('opentips') != undefined || target.hasClass('verseNum') || target.hasClass('chapNum')) return;
 		var word = selection.replace(/ /g, "");
-		var strong = $(ev.target).attr('strong');
+		var strong = target.attr('strong');
 		var lex = lexicon[strong];
 		//If the definition is not in our lexicon
 		if (lex == undefined) {
-			$(ev.target).opentip('definition unavailable', {style: "word"});
+			target.opentip('definition unavailable', {style: "word"});
 			return;
 		}
 		//If the definition is in our lexicon
 		var shortDef = lex.brief;
 		var morph = lex.morphology;
 		//Formatting the text in our tooltip to be displayed
-		$(ev.target).opentip("<b>" + word + "</b>" + " - "
+		target.opentip("<b>" + word + "</b>" + " - "
 			+ shortDef
-			+ "<br></br><a href='http://studybible.info/mac/" + morph + "'><i>(" + morph + ")</i></a>" ,
+			+ "<br></br><a target='_blank' href='http://studybible.info/mac/" + morph + "'><i>(" + morph + ")</i></a>" ,
 			{style: "word"});
 	}
 });
@@ -181,6 +183,7 @@ function switchBook(bookName) {
 			}
 			$("#bookTitle").text(bookName + " in Greek");
 			displayScripture(book, 1, 1, 1, 1);
+
 	}, function(err) { // if either json file doesn't exist
 		console.log("Could not get book data for " + bookName);
 	});
